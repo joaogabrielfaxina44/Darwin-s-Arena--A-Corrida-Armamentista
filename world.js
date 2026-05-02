@@ -16,6 +16,7 @@ class World {
         this.preyPopSize = 40;
         this.predPopSize = 10;
         this.foodCount = 50;
+        this.history = [];
 
         window.addEventListener('resize', () => this.resize());
         this.init();
@@ -175,6 +176,10 @@ class World {
      * Algoritmo Genético: Seleção Natural e Reprodução
      */
     nextGeneration() {
+        const bestPrey = this.preyPopulation.length > 0 ? Math.max(...this.preyPopulation.map(p => p.fitness)) : 0;
+        const bestPred = this.predatorPopulation.length > 0 ? Math.max(...this.predatorPopulation.map(p => p.fitness)) : 0;
+        this.history.push({ gen: this.generation, prey: bestPrey, pred: bestPred });
+
         this.generation++;
         
         // Evoluir Presas

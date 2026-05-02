@@ -61,6 +61,48 @@ function updateUI() {
     const bestPrey = Math.max(...world.preyPopulation.map(p => p.fitness));
     const bestPred = Math.max(...world.predatorPopulation.map(p => p.fitness));
     document.getElementById('best-fitness').innerText = Math.max(bestPrey, bestPred);
+    
+    drawChart();
+}
+
+function drawChart() {
+    const canvas = document.getElementById('fitness-canvas');
+    if (!canvas || world.history.length === 0) return;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Background
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const history = world.history;
+    const maxGen = history[history.length - 1].gen;
+    let maxFitness = Math.max(...history.map(h => Math.max(h.prey, h.pred)));
+    if (maxFitness === 0) maxFitness = 1;
+    
+    const padding = 5;
+    const w = canvas.width - padding * 2;
+    const h = canvas.height - padding * 2;
+    
+    function drawLine(key, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i < history.length; i++) {
+            const point = history[i];
+            const x = padding + (i / Math.max(1, history.length - 1)) * w;
+            const y = canvas.height - padding - (point[key] / maxFitness) * h;
+            
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+    
+    drawLine('prey', '#00f2ff');
+    drawLine('pred', '#ff0055');
 }
 
 // Iniciar quando o DOM estiver pronto

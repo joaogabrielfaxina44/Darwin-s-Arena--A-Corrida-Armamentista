@@ -122,6 +122,35 @@ class Agent {
         ctx.save();
         ctx.translate(this.pos.x, this.pos.y);
         ctx.rotate(this.angle);
+        
+        // Desenhar sensores (Raycasting)
+        for (let i = 0; i < this.sensorsCount; i++) {
+            const val = this.readings[i];
+            const dist = this.sensorRange * (1 - val);
+            const sAngle = this.sensorAngles[i];
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist);
+            
+            if (val > 0) {
+                // Acertou algo
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 1.5;
+            } else {
+                // Não acertou nada
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 0.5;
+            }
+            ctx.stroke();
+            
+            if (val > 0) {
+                ctx.beginPath();
+                ctx.arc(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist, 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fill();
+            }
+        }
 
         // Corpo (Triângulo)
         ctx.beginPath();
@@ -131,7 +160,9 @@ class Agent {
         ctx.closePath();
         
         ctx.fillStyle = this.color;
-        ctx.globalAlpha = 0.8;
+        // Agentes mais fitness ficam mais brilhantes
+        const fitnessBoost = Math.min(1.0, this.fitness / 100);
+        ctx.globalAlpha = 0.6 + (fitnessBoost * 0.4);
         ctx.fill();
         
         // Aura de Energia
