@@ -68,7 +68,7 @@ class Agent {
         this.acc.y *= 0;
 
         // Atualizar ângulo baseado na velocidade
-        if (speed > 0.1) {
+        if (speedSq > 0.01) { // speed > 0.1 => speedSq > 0.01
             this.angle = Math.atan2(this.vel.y, this.vel.x);
         }
 
