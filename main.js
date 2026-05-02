@@ -55,10 +55,17 @@ function setupControls() {
 
 function loop() {
     if (!isPaused) {
-        // No modo turbo, forçamos um número massivo de iterações por frame (ex: 1500)
-        const iterations = isHeadless ? 1500 : simSpeed;
-        for (let i = 0; i < iterations; i++) {
-            world.update();
+        if (isHeadless) {
+            // Roda o máximo de cálculos possíveis dentro de 16ms para não travar a aba (60 FPS fluidos)
+            const start = performance.now();
+            while (performance.now() - start < 16) {
+                world.update();
+            }
+        } else {
+            // Modo normal governado pelo slider
+            for (let i = 0; i < simSpeed; i++) {
+                world.update();
+            }
         }
     }
     
