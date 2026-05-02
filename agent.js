@@ -13,16 +13,16 @@ class Agent {
         
         this.radius = 6;
         this.maxSpeed = 3;
-        this.maxForce = 0.2;
+        this.maxForce = 0.6; // Força aumentada para desvios rápidos
         
         this.energy = 1.0; // 0 a 1
         this.fitness = 0;
         this.alive = true;
         
         // Configuração dos Sensores (Raycasting)
-        this.sensorsCount = 5;
-        this.sensorRange = 100;
-        this.sensorAngles = [-Math.PI/4, -Math.PI/8, 0, Math.PI/8, Math.PI/4];
+        this.sensorsCount = 7; // Visão periférica expandida
+        this.sensorRange = 120;
+        this.sensorAngles = [-Math.PI/2, -Math.PI/3, -Math.PI/8, 0, Math.PI/8, Math.PI/3, Math.PI/2];
         this.readings = new Array(this.sensorsCount).fill(0);
     }
 
@@ -93,7 +93,7 @@ class Agent {
         const output = this.dna.brain.predict(inputs);
         
         // Interpretando saídas
-        const throttle = output[0]; // 0 a 1
+        const throttle = (output[0] - 0.5) * 2; // -1 a 1 (Permite dar ré para frear ou desviar)
         const steer = (output[1] - 0.5) * 2; // -1 a 1
 
         // Converter saída em forças

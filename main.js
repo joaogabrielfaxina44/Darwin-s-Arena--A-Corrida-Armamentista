@@ -85,11 +85,24 @@ function drawChart() {
     const w = canvas.width - padding * 2;
     const h = canvas.height - padding * 2;
     
-    function drawLine(key, color) {
+    function drawLine(key, color, fillColor) {
         ctx.beginPath();
         ctx.strokeStyle = color;
+        ctx.fillStyle = fillColor;
         ctx.lineWidth = 2;
         
+        ctx.moveTo(padding, canvas.height - padding);
+        for (let i = 0; i < history.length; i++) {
+            const point = history[i];
+            const x = padding + (i / Math.max(1, history.length - 1)) * w;
+            const y = canvas.height - padding - (point[key] / maxFitness) * h;
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(padding + w, canvas.height - padding);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
         for (let i = 0; i < history.length; i++) {
             const point = history[i];
             const x = padding + (i / Math.max(1, history.length - 1)) * w;
@@ -101,8 +114,23 @@ function drawChart() {
         ctx.stroke();
     }
     
-    drawLine('prey', '#00f2ff');
-    drawLine('pred', '#ff0055');
+    drawLine('prey', '#00f2ff', 'rgba(0, 242, 255, 0.15)');
+    drawLine('pred', '#ff0055', 'rgba(255, 0, 85, 0.15)');
+
+    // Indicador de Estado / Vantagem
+    const lastPoint = history[history.length - 1];
+    ctx.font = '12px "JetBrains Mono"';
+    ctx.textAlign = 'right';
+    if (lastPoint.prey > lastPoint.pred) {
+        ctx.fillStyle = '#00f2ff';
+        ctx.fillText('VANTAGEM: PRESAS', canvas.width - 10, 20);
+    } else if (lastPoint.pred > lastPoint.prey) {
+        ctx.fillStyle = '#ff0055';
+        ctx.fillText('VANTAGEM: PREDADORES', canvas.width - 10, 20);
+    } else {
+        ctx.fillStyle = '#aaa';
+        ctx.fillText('EQUILÍBRIO', canvas.width - 10, 20);
+    }
 }
 
 // Iniciar quando o DOM estiver pronto

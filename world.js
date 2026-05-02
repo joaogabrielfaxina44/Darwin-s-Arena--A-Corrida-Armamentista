@@ -17,6 +17,8 @@ class World {
         this.predPopSize = 10;
         this.foodCount = 50;
         this.history = [];
+        this.maxFrames = 600; // Limite de tempo de vida
+        this.frameCount = 0;
 
         window.addEventListener('resize', () => this.resize());
         this.init();
@@ -78,7 +80,8 @@ class World {
         });
 
         // Verificar se a geração acabou
-        if (this.isGenerationOver()) {
+        this.frameCount++;
+        if (this.isGenerationOver() || this.frameCount >= this.maxFrames) {
             this.nextGeneration();
         }
     }
@@ -181,6 +184,7 @@ class World {
         this.history.push({ gen: this.generation, prey: bestPrey, pred: bestPred });
 
         this.generation++;
+        this.frameCount = 0;
         
         // Evoluir Presas
         this.preyPopulation = this.evolve(this.preyPopulation, this.preyPopSize, Prey);
@@ -196,7 +200,8 @@ class World {
         population.sort((a, b) => b.fitness - a.fitness);
         
         // Selecionar os melhores (Elite)
-        const elite = population.slice(0, Math.floor(size * 0.2));
+        const eliteCount = Math.max(2, Math.floor(size * 0.2));
+        const elite = population.slice(0, eliteCount);
         const newPop = [];
 
         // Preencher a nova população
@@ -206,9 +211,14 @@ class World {
                 const parent = elite[i];
                 newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, parent.dna.mutate(0.01)));
             } else {
-                // Reprodução via Roleta/Torneio (simplificado: pega um aleatório da elite)
-                const parent = elite[Math.floor(Math.random() * elite.length)];
-                newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, parent.dna.mutate(0.1)));
+                // Evolução exponencial: Crossover de dois pais da elite
+                const parentA = elite[Math.floor(Math.random() * elite.length)];
+                const parentB = elite[Math.floor(Math.random() * elite.length)];
+                let childDna = parentA.dna.crossover(parentB.dna);
+                
+                // Mutações mais agressivas
+                childDna = childDna.mutate(0.08); 
+                newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, childDna));
             }
         }
         return newPop;

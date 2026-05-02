@@ -67,6 +67,28 @@ class NeuralNetwork {
     }
 
     /**
+     * Combina o DNA de duas redes (Crossover Uniforme)
+     */
+    crossover(partner) {
+        let child = new NeuralNetwork(this.input_nodes, this.hidden_nodes, this.output_nodes);
+        
+        const cross = (m1, m2, dest) => {
+            for (let i = 0; i < m1.rows; i++) {
+                for (let j = 0; j < m1.cols; j++) {
+                    dest.data[i][j] = Math.random() < 0.5 ? m1.data[i][j] : m2.data[i][j];
+                }
+            }
+        };
+
+        cross(this.weights_ih, partner.weights_ih, child.weights_ih);
+        cross(this.weights_ho, partner.weights_ho, child.weights_ho);
+        cross(this.bias_h, partner.bias_h, child.bias_h);
+        cross(this.bias_o, partner.bias_o, child.bias_o);
+
+        return child;
+    }
+
+    /**
      * Aplica mutação gaussiana nos pesos e bias
      * @param {number} rate - Taxa de mutação (ex: 0.1 para 10%)
      */

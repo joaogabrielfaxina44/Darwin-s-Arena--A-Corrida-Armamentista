@@ -7,8 +7,8 @@ class DNA {
         if (brain) {
             this.brain = brain;
         } else {
-            // Configuração padrão: 5 entradas (sensores), 8 neurônios ocultos, 2 saídas (força, rotação)
-            this.brain = new NeuralNetwork(8, 12, 2);
+            // Configuração ampliada: 10 entradas, 16 ocultos, 2 saídas
+            this.brain = new NeuralNetwork(10, 16, 2);
         }
     }
 
@@ -18,6 +18,14 @@ class DNA {
     mutate(rate) {
         let newBrain = this.brain.copy();
         newBrain.mutate(rate);
+        return new DNA(newBrain);
+    }
+
+    /**
+     * Crossover genético
+     */
+    crossover(partner) {
+        let newBrain = this.brain.crossover(partner.brain);
         return new DNA(newBrain);
     }
 }
