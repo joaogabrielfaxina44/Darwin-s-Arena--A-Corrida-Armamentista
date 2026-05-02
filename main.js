@@ -6,6 +6,7 @@
 let world;
 let isPaused = false;
 let simSpeed = 1;
+let lastUITime = 0;
 
 function init() {
     world = new World('arena-canvas');
@@ -57,6 +58,10 @@ function loop() {
 }
 
 function updateUI() {
+    const now = Date.now();
+    if (now - lastUITime < 2000) return; // Atualizar apenas a cada 2 segundos
+    lastUITime = now;
+
     // Atualiza contadores em tempo real
     const alivePrey = world.preyPopulation.filter(p => p.alive).length;
     const alivePred = world.predatorPopulation.filter(p => p.alive).length;
@@ -68,7 +73,7 @@ function updateUI() {
     // Pegar o melhor fitness de qualquer espécie
     const bestPrey = Math.max(...world.preyPopulation.map(p => p.fitness));
     const bestPred = Math.max(...world.predatorPopulation.map(p => p.fitness));
-    document.getElementById('best-fitness').innerText = Math.max(bestPrey, bestPred);
+    document.getElementById('best-fitness').innerText = Math.floor(Math.max(bestPrey, bestPred));
     
     drawChart();
 }
