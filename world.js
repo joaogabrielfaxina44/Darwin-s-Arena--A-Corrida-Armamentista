@@ -96,57 +96,78 @@ class World {
     sense(agent) {
         agent.readings.fill(0);
 
+        // OTIMIZAÇÃO: Broad-Phase Bounding Box Filter. 
+        // Em vez de checar 130 entidades para cada um dos 7 sensores (N^2), 
+        // criamos uma lista apenas com as entidades próximas.
+        const nearbyTargets = [];
+        const targets = agent.type === 'prey' ? this.food : this.preyPopulation;
+        
+        for (let j = 0; j < targets.length; j++) {
+            const t = targets[j];
+            if (t === agent || t.alive === false) continue;
+            // Check de caixa delimitadora rápida
+            if (Math.abs(t.x !== undefined ? t.x : t.pos.x - agent.pos.x) <= agent.sensorRange && 
+                Math.abs(t.y !== undefined ? t.y : t.pos.y - agent.pos.y) <= agent.sensorRange) {
+                nearbyTargets.push(t);
+            }
+        }
+
+        const nearbyPredators = [];
+        if (agent.type === 'prey') {
+            for (let j = 0; j < this.predatorPopulation.length; j++) {
+                const p = this.predatorPopulation[j];
+                if (!p.alive) continue;
+                if (Math.abs(p.pos.x - agent.pos.x) <= agent.sensorRange && 
+                    Math.abs(p.pos.y - agent.pos.y) <= agent.sensorRange) {
+                    nearbyPredators.push(p);
+                }
+            }
+        }
+
         for (let i = 0; i < agent.sensorsCount; i++) {
             const angle = agent.angle + agent.sensorAngles[i];
             const rayDir = { x: Math.cos(angle), y: Math.sin(angle) };
             
             let closestDist = agent.sensorRange;
-            let typeDetected = 0; // 0: Nada, 0.5: Comida/Presa, 1: Perigo/Predador
 
-            // Detectar Comida (se for Presa) ou Presa (se for Predador)
-            const targets = agent.type === 'prey' ? this.food : this.preyPopulation;
-            
-            for (let j = 0; j < targets.length; j++) {
-                const target = targets[j];
-                if (target === agent || (target.alive === false)) continue;
-                
+            for (let j = 0; j < nearbyTargets.length; j++) {
+                const target = nearbyTargets[j];
                 const dist = this.distToRay(agent.pos, rayDir, target);
                 if (dist > 0 && dist < closestDist) {
                     closestDist = dist;
-                    typeDetected = 0.5;
                 }
             }
 
-            // Detectar Predadores (se for Presa)
-            if (agent.type === 'prey') {
-                for (let j = 0; j < this.predatorPopulation.length; j++) {
-                    const pred = this.predatorPopulation[j];
-                    const dist = this.distToRay(agent.pos, rayDir, pred.pos);
-                    if (dist > 0 && dist < closestDist) {
-                        closestDist = dist;
-                        typeDetected = 1.0;
-                    }
+            for (let j = 0; j < nearbyPredators.length; j++) {
+                const pred = nearbyPredators[j];
+                const dist = this.distToRay(agent.pos, rayDir, pred.pos);
+                if (dist > 0 && dist < closestDist) {
+                    closestDist = dist;
                 }
             }
 
-            // Normalizar leitura (1 = perto, 0 = longe)
             agent.readings[i] = 1 - (closestDist / agent.sensorRange);
         }
     }
 
     distToRay(origin, dir, target) {
-        const toTarget = { x: target.x - origin.x, y: target.y - origin.y };
-        const projection = toTarget.x * dir.x + toTarget.y * dir.y;
+        const tx = target.x !== undefined ? target.x : target.pos.x;
+        const ty = target.y !== undefined ? target.y : target.pos.y;
+        
+        const dx = tx - origin.x;
+        const dy = ty - origin.y;
+        const projection = dx * dir.x + dy * dir.y;
         
         if (projection < 0) return -1; // Atrás do raio
 
-        const closestPoint = {
-            x: origin.x + dir.x * projection,
-            y: origin.y + dir.y * projection
-        };
+        const cX = origin.x + dir.x * projection;
+        const cY = origin.y + dir.y * projection;
 
-        const distSq = (target.x - closestPoint.x)**2 + (target.y - closestPoint.y)**2;
-        if (distSq < 400) { // Se o ponto mais próximo está "perto" o suficiente da linha do raio
+        const dX = tx - cX;
+        const dY = ty - cY;
+        const distSq = dX * dX + dY * dY;
+        
+        if (distSq < 400) { 
             return projection;
         }
         return -1;
@@ -156,7 +177,10 @@ class World {
         for (let i = 0; i < this.food.length; i++) {
             const f = this.food[i];
             const dx = prey.pos.x - f.x;
+            if (dx > 15 || dx < -15) continue; // Broad phase
             const dy = prey.pos.y - f.y;
+            if (dy > 15 || dy < -15) continue; // Broad phase
+            
             const dSq = dx * dx + dy * dy;
             const rSum = prey.radius + f.radius;
             if (dSq < rSum * rSum) {
@@ -172,7 +196,10 @@ class World {
             const prey = this.preyPopulation[i];
             if (!prey.alive) continue;
             const dx = pred.pos.x - prey.pos.x;
+            if (dx > 20 || dx < -20) continue; // Broad phase
             const dy = pred.pos.y - prey.pos.y;
+            if (dy > 20 || dy < -20) continue; // Broad phase
+            
             const dSq = dx * dx + dy * dy;
             const rSum = pred.radius + prey.radius;
             if (dSq < rSum * rSum) {
