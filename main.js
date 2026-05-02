@@ -56,10 +56,13 @@ function setupControls() {
 function loop() {
     if (!isPaused) {
         if (isHeadless) {
-            // Roda o máximo de cálculos possíveis dentro de 16ms para não travar a aba (60 FPS fluidos)
+            // Roda em blocos pesados para evitar o custo massivo do 'performance.now()' a cada ciclo.
+            // Damos um limite de 33ms (focando em CPU pesada, UI cai pra ~30fps suave)
             const start = performance.now();
-            while (performance.now() - start < 16) {
-                world.update();
+            while (performance.now() - start < 33) {
+                for (let i = 0; i < 20; i++) {
+                    world.update();
+                }
             }
         } else {
             // Modo normal governado pelo slider

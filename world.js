@@ -62,24 +62,26 @@ class World {
      */
     update() {
         // Atualizar Presas
-        this.preyPopulation.forEach(prey => {
-            if (!prey.alive) return;
+        for (let i = 0; i < this.preyPopulation.length; i++) {
+            const prey = this.preyPopulation[i];
+            if (!prey.alive) continue;
             this.sense(prey);
             prey.think();
             prey.update(this.width, this.height);
             this.checkFood(prey);
             if (prey.alive) prey.fitness += 0.1; // Gradiente de aprendizado: Sobreviver = bom
-        });
+        }
 
         // Atualizar Predadores
-        this.predatorPopulation.forEach(pred => {
-            if (!pred.alive) return;
+        for (let i = 0; i < this.predatorPopulation.length; i++) {
+            const pred = this.predatorPopulation[i];
+            if (!pred.alive) continue;
             this.sense(pred);
             pred.think();
             pred.update(this.width, this.height);
             this.checkHunt(pred);
             if (pred.alive) pred.fitness += 0.1; // Gradiente de aprendizado: Sobreviver = bom
-        });
+        }
 
         // Verificar se a geração acabou
         this.frameCount++;
@@ -104,25 +106,27 @@ class World {
             // Detectar Comida (se for Presa) ou Presa (se for Predador)
             const targets = agent.type === 'prey' ? this.food : this.preyPopulation;
             
-            targets.forEach(target => {
-                if (target === agent || (target.alive === false)) return;
+            for (let j = 0; j < targets.length; j++) {
+                const target = targets[j];
+                if (target === agent || (target.alive === false)) continue;
                 
                 const dist = this.distToRay(agent.pos, rayDir, target);
                 if (dist > 0 && dist < closestDist) {
                     closestDist = dist;
                     typeDetected = 0.5;
                 }
-            });
+            }
 
             // Detectar Predadores (se for Presa)
             if (agent.type === 'prey') {
-                this.predatorPopulation.forEach(pred => {
+                for (let j = 0; j < this.predatorPopulation.length; j++) {
+                    const pred = this.predatorPopulation[j];
                     const dist = this.distToRay(agent.pos, rayDir, pred.pos);
                     if (dist > 0 && dist < closestDist) {
                         closestDist = dist;
                         typeDetected = 1.0;
                     }
-                });
+                }
             }
 
             // Normalizar leitura (1 = perto, 0 = longe)
@@ -149,7 +153,8 @@ class World {
     }
 
     checkFood(prey) {
-        this.food.forEach((f, index) => {
+        for (let i = 0; i < this.food.length; i++) {
+            const f = this.food[i];
             const dx = prey.pos.x - f.x;
             const dy = prey.pos.y - f.y;
             const dSq = dx * dx + dy * dy;
@@ -157,14 +162,15 @@ class World {
             if (dSq < rSum * rSum) {
                 prey.energy = Math.min(1.0, prey.energy + 0.3);
                 prey.fitness += 10;
-                this.food[index] = { x: Math.random() * this.width, y: Math.random() * this.height, radius: 3 };
+                this.food[i] = { x: Math.random() * this.width, y: Math.random() * this.height, radius: 3 };
             }
-        });
+        }
     }
 
     checkHunt(pred) {
-        this.preyPopulation.forEach(prey => {
-            if (!prey.alive) return;
+        for (let i = 0; i < this.preyPopulation.length; i++) {
+            const prey = this.preyPopulation[i];
+            if (!prey.alive) continue;
             const dx = pred.pos.x - prey.pos.x;
             const dy = pred.pos.y - prey.pos.y;
             const dSq = dx * dx + dy * dy;
@@ -174,7 +180,7 @@ class World {
                 pred.energy = Math.min(1.0, pred.energy + 0.5);
                 pred.fitness += 50;
             }
-        });
+        }
     }
 
     isGenerationOver() {
