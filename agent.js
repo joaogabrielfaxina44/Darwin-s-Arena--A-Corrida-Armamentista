@@ -54,9 +54,10 @@ class Agent {
         this.vel.x *= 0.92;
         this.vel.y *= 0.92;
         
-        // Limitar velocidade
-        const speed = Math.sqrt(this.vel.x**2 + this.vel.y**2);
-        if (speed > this.maxSpeed) {
+        // Limitar velocidade otimizado sem Math.sqrt sempre
+        const speedSq = this.vel.x * this.vel.x + this.vel.y * this.vel.y;
+        if (speedSq > this.maxSpeed * this.maxSpeed) {
+            const speed = Math.sqrt(speedSq);
             this.vel.x = (this.vel.x / speed) * this.maxSpeed;
             this.vel.y = (this.vel.y / speed) * this.maxSpeed;
         }

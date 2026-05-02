@@ -150,8 +150,11 @@ class World {
 
     checkFood(prey) {
         this.food.forEach((f, index) => {
-            const d = Math.sqrt((prey.pos.x - f.x)**2 + (prey.pos.y - f.y)**2);
-            if (d < prey.radius + f.radius) {
+            const dx = prey.pos.x - f.x;
+            const dy = prey.pos.y - f.y;
+            const dSq = dx * dx + dy * dy;
+            const rSum = prey.radius + f.radius;
+            if (dSq < rSum * rSum) {
                 prey.energy = Math.min(1.0, prey.energy + 0.3);
                 prey.fitness += 10;
                 this.food[index] = { x: Math.random() * this.width, y: Math.random() * this.height, radius: 3 };
@@ -162,8 +165,11 @@ class World {
     checkHunt(pred) {
         this.preyPopulation.forEach(prey => {
             if (!prey.alive) return;
-            const d = Math.sqrt((pred.pos.x - prey.pos.x)**2 + (pred.pos.y - prey.pos.y)**2);
-            if (d < pred.radius + prey.radius) {
+            const dx = pred.pos.x - prey.pos.x;
+            const dy = pred.pos.y - prey.pos.y;
+            const dSq = dx * dx + dy * dy;
+            const rSum = pred.radius + prey.radius;
+            if (dSq < rSum * rSum) {
                 prey.alive = false;
                 pred.energy = Math.min(1.0, pred.energy + 0.5);
                 pred.fitness += 50;

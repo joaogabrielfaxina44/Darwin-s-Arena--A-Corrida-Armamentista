@@ -70,11 +70,6 @@ function updateUI() {
     document.getElementById('pred-count').innerText = alivePred;
     document.getElementById('pop-count').innerText = alivePrey + alivePred;
     
-    // Pegar o melhor fitness de qualquer espécie
-    const bestPrey = Math.max(...world.preyPopulation.map(p => p.fitness));
-    const bestPred = Math.max(...world.predatorPopulation.map(p => p.fitness));
-    document.getElementById('best-fitness').innerText = Math.floor(Math.max(bestPrey, bestPred));
-    
     drawChart();
 }
 
