@@ -5,6 +5,7 @@
 
 let world;
 let isPaused = false;
+let isHeadless = false;
 let simSpeed = 1;
 let lastUITime = 0;
 
@@ -29,6 +30,15 @@ function setupControls() {
         }
     });
 
+    const btnHeadless = document.getElementById('btn-headless');
+    if (btnHeadless) {
+        btnHeadless.addEventListener('click', () => {
+            isHeadless = !isHeadless;
+            btnHeadless.innerText = isHeadless ? 'Sair do Modo Turbo' : 'Modo Turbo (Sem Tela)';
+            btnHeadless.style.background = isHeadless ? 'var(--accent-predator)' : '';
+        });
+    }
+
     const speedSlider = document.getElementById('sim-speed');
     speedSlider.addEventListener('input', (e) => {
         simSpeed = parseInt(e.target.value);
@@ -45,13 +55,32 @@ function setupControls() {
 
 function loop() {
     if (!isPaused) {
-        // Rodar múltiplas vezes por frame para acelerar simulação se necessário
-        for (let i = 0; i < simSpeed; i++) {
+        // No modo turbo, forçamos um número massivo de iterações por frame (ex: 1500)
+        const iterations = isHeadless ? 1500 : simSpeed;
+        for (let i = 0; i < iterations; i++) {
             world.update();
         }
     }
     
-    world.draw();
+    if (!isHeadless) {
+        world.draw();
+    } else {
+        // Feedback visual do Modo Turbo
+        const canvas = document.getElementById('arena-canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(10, 11, 16, 0.2)'; // Fundo com rastro
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#ff0055';
+        ctx.font = 'bold 24px "Outfit"';
+        ctx.textAlign = 'center';
+        ctx.fillText('MODO TURBO ATIVADO', canvas.width/2, canvas.height/2);
+        
+        ctx.fillStyle = '#00f2ff';
+        ctx.font = '16px "Outfit"';
+        ctx.fillText('Simulando gerações em background...', canvas.width/2, canvas.height/2 + 30);
+    }
+    
     updateUI();
     
     requestAnimationFrame(loop);
