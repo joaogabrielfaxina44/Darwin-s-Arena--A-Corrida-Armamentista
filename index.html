@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darwin's Arena: A Corrida Armamentista</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Darwin's Arena</h1>
+            <div class="stats-bar">
+                <div class="stat">Geração: <span id="gen-count">1</span></div>
+                <div class="stat">População: <span id="pop-count">0</span></div>
+                <div class="stat">Melhor Fitness: <span id="best-fitness">0</span></div>
+            </div>
+        </header>
+
+        <main>
+            <canvas id="arena-canvas"></canvas>
+            
+            <aside class="sidebar">
+                <section class="controls">
+                    <h2>Controle de Experimento</h2>
+                    <button id="btn-pause">Pausar</button>
+                    <button id="btn-reset">Resetar Evolução</button>
+                    <div class="slider-group">
+                        <label>Velocidade de Simulação</label>
+                        <input type="range" id="sim-speed" min="1" max="10" value="1">
+                    </div>
+                </section>
+
+                <section class="telemetry">
+                    <h2>Telemetria</h2>
+                    <div class="chart-container">
+                        <!-- Placeholder para gráfico futuro -->
+                        <div id="fitness-chart"></div>
+                    </div>
+                    <div class="species-stats">
+                        <div class="species prey">
+                            <h3>Presas (Espécie A)</h3>
+                            <p>Vivos: <span id="prey-count">0</span></p>
+                        </div>
+                        <div class="species predator">
+                            <h3>Predadores (Espécie B)</h3>
+                            <p>Vivos: <span id="pred-count">0</span></p>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <footer>
+            <p>Simulação de Coevolução Competitiva | Darwin's Arena v1.0</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="matrix.js"></script>
+    <script src="nn.js"></script>
+    <script src="dna.js"></script>
+    <script src="agent.js"></script>
+    <script src="world.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
