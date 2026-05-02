@@ -13,9 +13,9 @@ class World {
         this.food = [];
         
         this.generation = 1;
-        this.preyPopSize = 40;
-        this.predPopSize = 10;
-        this.foodCount = 50;
+        this.preyPopSize = 100; // Simulação em massa
+        this.predPopSize = 30;
+        this.foodCount = 100;
         this.history = [];
         this.maxFrames = 600; // Limite de tempo de vida
         this.frameCount = 0;
@@ -68,6 +68,7 @@ class World {
             prey.think();
             prey.update(this.width, this.height);
             this.checkFood(prey);
+            if (prey.alive) prey.fitness += 0.1; // Gradiente de aprendizado: Sobreviver = bom
         });
 
         // Atualizar Predadores
@@ -77,6 +78,7 @@ class World {
             pred.think();
             pred.update(this.width, this.height);
             this.checkHunt(pred);
+            if (pred.alive) pred.fitness += 0.1; // Gradiente de aprendizado: Sobreviver = bom
         });
 
         // Verificar se a geração acabou
@@ -199,25 +201,28 @@ class World {
         // Ordenar por fitness
         population.sort((a, b) => b.fitness - a.fitness);
         
-        // Selecionar os melhores (Elite)
+        // Selecionar os melhores (Elite e Campeão Absoluto)
         const eliteCount = Math.max(2, Math.floor(size * 0.2));
         const elite = population.slice(0, eliteCount);
+        const champion = elite[0]; // O Indivíduo com o melhor desempenho será o Padrão
         const newPop = [];
 
         // Preencher a nova população
         for (let i = 0; i < size; i++) {
-            if (i < elite.length) {
-                // Elite passa direto (com pequena mutação)
-                const parent = elite[i];
-                newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, parent.dna.mutate(0.01)));
+            if (i === 0) {
+                // O Campeão passa intacto (Clonagem Perfeita)
+                newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, champion.dna.mutate(0)));
+            } else if (i < size * 0.5) {
+                // 50% da população será padronizada a partir do Campeão (Evolução guiada)
+                newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, champion.dna.mutate(0.05)));
             } else {
-                // Evolução exponencial: Crossover de dois pais da elite
+                // Os outros 50%: Crossover da elite (mistura de táticas)
                 const parentA = elite[Math.floor(Math.random() * elite.length)];
                 const parentB = elite[Math.floor(Math.random() * elite.length)];
                 let childDna = parentA.dna.crossover(parentB.dna);
                 
-                // Mutações mais agressivas
-                childDna = childDna.mutate(0.08); 
+                // Mutações para explorar o desconhecido
+                childDna = childDna.mutate(0.1); 
                 newPop.push(new ClassType(Math.random() * this.width, Math.random() * this.height, childDna));
             }
         }

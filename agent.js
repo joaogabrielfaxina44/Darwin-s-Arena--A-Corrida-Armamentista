@@ -76,10 +76,9 @@ class Agent {
     }
 
     boundaries(w, h) {
-        if (this.pos.x < 0) this.pos.x = w;
-        if (this.pos.x > w) this.pos.x = 0;
-        if (this.pos.y < 0) this.pos.y = h;
-        if (this.pos.y > h) this.pos.y = 0;
+        if (this.pos.x < 0 || this.pos.x > w || this.pos.y < 0 || this.pos.y > h) {
+            this.alive = false; // "Se sair, acabou"
+        }
     }
 
     /**

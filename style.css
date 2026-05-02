@@ -27,17 +27,17 @@ body {
 }
 
 #app {
-    width: 95vw;
-    height: 90vh;
+    width: 100vw;
+    height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    gap: 20px;
+    gap: 15px;
     background: var(--card-bg);
     backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 0;
+    padding: 20px;
+    box-shadow: none;
 }
 
 header {
