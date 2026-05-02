@@ -93,6 +93,26 @@ main {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 section {
@@ -141,6 +161,22 @@ button:hover {
 
 input[type="range"] {
     width: 100%;
+}
+
+.toggle-group {
+    margin-top: 15px;
+}
+
+.toggle-group label {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    cursor: pointer;
+}
+
+.toggle-group input {
+    margin-right: 8px;
 }
 
 .species-stats {

@@ -50,6 +50,10 @@ class Agent {
         this.vel.x += this.acc.x;
         this.vel.y += this.acc.y;
         
+        // Aplicar atrito (friction) ambiental para que consigam parar
+        this.vel.x *= 0.92;
+        this.vel.y *= 0.92;
+        
         // Limitar velocidade
         const speed = Math.sqrt(this.vel.x**2 + this.vel.y**2);
         if (speed > this.maxSpeed) {
@@ -123,32 +127,32 @@ class Agent {
         ctx.translate(this.pos.x, this.pos.y);
         ctx.rotate(this.angle);
         
-        // Desenhar sensores (Raycasting)
-        for (let i = 0; i < this.sensorsCount; i++) {
-            const val = this.readings[i];
-            const dist = this.sensorRange * (1 - val);
-            const sAngle = this.sensorAngles[i];
-            
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist);
-            
-            if (val > 0) {
-                // Acertou algo
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.lineWidth = 1.5;
-            } else {
-                // Não acertou nada
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.lineWidth = 0.5;
-            }
-            ctx.stroke();
-            
-            if (val > 0) {
+        if (window.visualFx) {
+            // Desenhar sensores (Raycasting)
+            for (let i = 0; i < this.sensorsCount; i++) {
+                const val = this.readings[i];
+                const dist = this.sensorRange * (1 - val);
+                const sAngle = this.sensorAngles[i];
+                
                 ctx.beginPath();
-                ctx.arc(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist, 3, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.fill();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist);
+                
+                if (val > 0) {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.lineWidth = 1.5;
+                } else {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.lineWidth = 0.5;
+                }
+                ctx.stroke();
+                
+                if (val > 0) {
+                    ctx.beginPath();
+                    ctx.arc(Math.cos(sAngle) * dist, Math.sin(sAngle) * dist, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                }
             }
         }
 
@@ -160,16 +164,23 @@ class Agent {
         ctx.closePath();
         
         ctx.fillStyle = this.color;
-        // Agentes mais fitness ficam mais brilhantes
-        const fitnessBoost = Math.min(1.0, this.fitness / 100);
-        ctx.globalAlpha = 0.6 + (fitnessBoost * 0.4);
+        
+        if (window.visualFx) {
+            // Agentes mais fitness ficam mais brilhantes
+            const fitnessBoost = Math.min(1.0, this.fitness / 100);
+            ctx.globalAlpha = 0.6 + (fitnessBoost * 0.4);
+        } else {
+            ctx.globalAlpha = 1.0;
+        }
         ctx.fill();
         
-        // Aura de Energia
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 2;
-        ctx.globalAlpha = this.energy;
-        ctx.stroke();
+        if (window.visualFx) {
+            // Aura de Energia
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = this.energy;
+            ctx.stroke();
+        }
 
         ctx.restore();
     }

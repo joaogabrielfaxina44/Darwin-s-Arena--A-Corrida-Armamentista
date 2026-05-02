@@ -32,6 +32,14 @@ function setupControls() {
     speedSlider.addEventListener('input', (e) => {
         simSpeed = parseInt(e.target.value);
     });
+
+    window.visualFx = true;
+    const toggleFx = document.getElementById('toggle-fx');
+    if (toggleFx) {
+        toggleFx.addEventListener('change', (e) => {
+            window.visualFx = e.target.checked;
+        });
+    }
 }
 
 function loop() {
